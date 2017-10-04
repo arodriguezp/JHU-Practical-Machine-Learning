@@ -1,0 +1,150 @@
+---
+title: "Practical Machine Learning Project"
+author: "ALVARO RODRIGUEZ PEREZ"
+date: "3 de octubre de 2017"
+output: html_document
+---
+
+## INTRODUCTION
+
+This  model consist na oimplementation of two models: Regression Tree and Random Forest using dataset provided no Practical Machine Learning.
+
+Project consist in create a classification model to determine a "Classe" Variavel referred to the "how well was an exercise training"
+
+
+# IMPORTING DATA
+
+In order to avoid error of importation with missing values. I set na.string option to capture some values observed in training and test set
+
+```{r }
+setwd("~/Curso Coursera/Machile Learning/Trabajo")
+library(caret)
+library(VIM) #missing values maps
+
+training<- read.csv("pml-training.csv", header=TRUE, dec="."
+                    ,na.strings = c("NA", "#DIV/0!", ""))
+
+testing <- read.csv("pml-testing.csv", header=TRUE, dec=".",
+                    na.strings = c("NA", "#DIV/0!", ""))
+
+```
+
+## Data Cleaning
+
+testing and Training hav a lot of columns with missings values. In order to clean, I identify columns with missing values in Testing Set and deleted in both Training and Testing Data sets because testing set have more columns with missing values than training set.
+
+Thus, columnas 1 to 7 was removed in both datasets because don't have relationship with outcome
+
+
+```{r }
+# cleaning data:
+
+features <- names(testing[,colSums(is.na(testing)) == 0]) # columnas sin NAs
+features <- features[-60]
+
+
+training1<- training[,c(features,"classe")]
+training1<- training1[,-(1:7)]
+
+
+testing1<- testing[,c(features,"problem_id")]
+testing1<- testing1[,-(1:7)]
+
+
+dim(testing1)
+dim(training1)
+
+
+```
+
+
+## Missing Values Maps
+
+Missing Maps shows no presence of NAs
+
+
+```{r, echo=FALSE }
+# missing analysis:
+
+aggr_plot <- aggr(training1, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(data), cex.axis=.4, gap=3, ylab=c("Histogram of missing data","Pattern"))
+
+aggr_plot <- aggr(testing1, col=c('navyblue','red'), numbers=TRUE, sortVars=TRUE, labels=names(data), cex.axis=.4, gap=3, ylab=c("Histogram of missing data","Pattern"))
+
+
+```
+
+## Data Partition
+
+I create a train and test set based in training data set with a proportion of 70/30. Train Set will be for training model, Test Set for Validation
+
+```{r }
+# datapartition
+
+set.seed(33)
+inTrain<- createDataPartition(training1$classe, p=0.7, list=FALSE)
+train<- training1[inTrain,]
+test<- training1[-inTrain,]
+
+
+```
+
+## RPART Model
+
+Next step, create a decition tree model
+
+```{r }
+# modelo RPART:
+
+modFit1<- train(classe~., data=train, method= "rpart",
+               trControl=trainControl(method="cv", number=10))
+
+modFit1$finalModel
+
+pred1<- predict(modFit1, test)
+
+confusionMatrix(test$classe, pred1)
+
+
+
+```
+
+Poor Performance explined but a lot of "classes" in dataset. So we try to implement another model ussing Rando Forest.
+
+
+## Random Forest Model
+
+Using this model and cross-validation with 10 folds:  
+
+```{r }
+# modelo Ramdom forest
+
+modFit2<- train(classe~., data=train, method= "rf"
+               , trControl= trainControl(method="cv",number=10))
+
+modFit2$finalModel
+
+pred2<- predict(modFit2, test)
+
+confusionMatrix(test$classe, pred2)
+
+
+
+```
+
+Accuracy in confusion matrix increase a lot.This model is a best classificator.
+
+## Predicting values for Testing Set
+
+finally, predicting values for Testing Set are:  
+
+```{r }
+# predict in Testing Set for evaluation:
+
+resultsRF<-predict(modFit2,testing1)
+
+resultsRF
+```
+
+
+
+
