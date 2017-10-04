@@ -439,7 +439,11 @@ confusionMatrix(test$classe, pred2)</code></pre>
 <p>finally, predicting values for Testing Set are:</p>
 <pre class="r"><code># predict in Testing Set for evaluation:
 
-resultsRF&lt;-predict(modFit2,testing1)</code></pre>
+resultsRF&lt;-predict(modFit2,testing1)
+
+resultsRF</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
 </div>
 </div>
 
