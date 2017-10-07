@@ -125,18 +125,18 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level2">
 <h2>INTRODUCTION</h2>
-<p>This model consist na oimplementation of two models: Regression Tree and Random Forest using dataset provided no Practical Machine Learning.</p>
-<p>Project consist in create a classification model to determine a “Classe” Variavel referred to the “how well was an exercise training”</p>
+<p>This model consists on a implementation of two models: Regression Tree and Random Forest using a dataset provided no Practical Machine Learning Project.</p>
+<p>Project consists in create a classification model to determine a “Classe” Variavel referred to the “how well an exercise training was”.</p>
 </div>
 <div id="importing-data" class="section level1">
 <h1>IMPORTING DATA</h1>
-<p>In order to avoid error of importation with missing values. I set na.string option to capture some values observed in training and test set</p>
+<p>In order to avoid error of importation with missing values. Its importante set na.string option with some characters related to missing values (NA,#DIV/0,“”) to help R importation function a correct determination of each type of variavels.</p>
 <pre class="r"><code>setwd(&quot;~/Curso Coursera/Machile Learning/Trabajo&quot;)
 library(caret)</code></pre>
 <pre><code>## Warning: package 'caret' was built under R version 3.4.1</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
-<pre><code>## Warning: package 'ggplot2' was built under R version 3.4.1</code></pre>
+<pre><code>## Warning: package 'ggplot2' was built under R version 3.4.2</code></pre>
 <pre class="r"><code>library(VIM) #missing values maps</code></pre>
 <pre><code>## Warning: package 'VIM' was built under R version 3.4.1</code></pre>
 <pre><code>## Loading required package: colorspace</code></pre>
@@ -159,8 +159,8 @@ testing &lt;- read.csv(&quot;pml-testing.csv&quot;, header=TRUE, dec=&quot;.&quo
                     na.strings = c(&quot;NA&quot;, &quot;#DIV/0!&quot;, &quot;&quot;))</code></pre>
 <div id="data-cleaning" class="section level2">
 <h2>Data Cleaning</h2>
-<p>testing and Training hav a lot of columns with missings values. In order to clean, I identify columns with missing values in Testing Set and deleted in both Training and Testing Data sets because testing set have more columns with missing values than training set.</p>
-<p>Thus, columnas 1 to 7 was removed in both datasets because don’t have relationship with outcome</p>
+<p>Testing and Training datasets have a lot of columns with missings values. In order to clean its, I identify columns with missing values in Testing Set and deleted in both Training and Testing Data sets because testing set have more columns with missing values than training set.</p>
+<p>Thus, columns 1 to 7 was removed in both datasets because don’t have relationship with outcome</p>
 <pre class="r"><code># cleaning data:
 
 features &lt;- names(testing[,colSums(is.na(testing)) == 0]) # columnas sin NAs
@@ -300,7 +300,7 @@ dim(testing1)</code></pre>
 </div>
 <div id="data-partition" class="section level2">
 <h2>Data Partition</h2>
-<p>I create a train and test set based in training data set with a proportion of 70/30. Train Set will be for training model, Test Set for Validation</p>
+<p>I created a train and test datasets based in training data set with a proportion of 70/30. Train Set will be for training model proposes and Test Set for Validation proposes</p>
 <pre class="r"><code># datapartition
 
 set.seed(33)
@@ -310,7 +310,7 @@ test&lt;- training1[-inTrain,]</code></pre>
 </div>
 <div id="rpart-model" class="section level2">
 <h2>RPART Model</h2>
-<p>Next step, create a decition tree model</p>
+<p>Next step, creation of a decition tree model: RPART</p>
 <pre class="r"><code># modelo RPART:
 
 modFit1&lt;- train(classe~., data=train, method= &quot;rpart&quot;,
@@ -365,11 +365,11 @@ confusionMatrix(test$classe, pred1)</code></pre>
 ## Detection Rate         0.2590  0.06559  0.08564   0.0000  0.08360
 ## Detection Prevalence   0.2845  0.19354  0.17434   0.1638  0.18386
 ## Balanced Accuracy      0.7201  0.67841  0.60393       NA  0.94123</code></pre>
-<p>Poor Performance explined but a lot of “classes” in dataset. So we try to implement another model ussing Rando Forest.</p>
+<p>Accuracy (49%) shows a low Performance model explined but a lot of “classes” in dataset. So we try to implement another model ussing Rando Forest.</p>
 </div>
 <div id="random-forest-model" class="section level2">
 <h2>Random Forest Model</h2>
-<p>Using this model and cross-validation with 10 folds:</p>
+<p>In order to improve a performance of a model, i set RF Model with Cross Validation ands 10 folds:</p>
 <pre class="r"><code># modelo Ramdom forest
 
 modFit2&lt;- train(classe~., data=train, method= &quot;rf&quot;
@@ -432,11 +432,13 @@ confusionMatrix(test$classe, pred2)</code></pre>
 ## Detection Rate         0.2838   0.1912   0.1733   0.1602   0.1833
 ## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
 ## Balanced Accuracy      0.9974   0.9954   0.9860   0.9963   0.9983</code></pre>
-<p>Accuracy in confusion matrix increase a lot.This model is a best classificator.</p>
+<p>Accuracy in confusion matrix Test DataSet increased a lot, obtaining 99,18%.This model is a best classificator.</p>
+<p>IN ORDER TO ASWWER THE QUESTION OF A PROJECT: THE OUT OF SAMPLE ERROR (GERENALIZATION ERROR) in this case its 0,82% and its obtained like an inverse of accuracy in test dataset (1- 99,18%).</p>
+<p>We can’t estimate the out of sample error in testing dataset because don’t have the real outcome values. But analising we want expect that both datasets ( training and testing) could not have a diferent estructure or another variavel who can suspect me to detect that a model doesn’t works.</p>
 </div>
 <div id="predicting-values-for-testing-set" class="section level2">
 <h2>Predicting values for Testing Set</h2>
-<p>finally, predicting values for Testing Set are:</p>
+<p>So, Finally, predicting values for Testing dataSet are obtained as follow:</p>
 <pre class="r"><code># predict in Testing Set for evaluation:
 
 resultsRF&lt;-predict(modFit2,testing1)
@@ -444,6 +446,15 @@ resultsRF&lt;-predict(modFit2,testing1)
 resultsRF</code></pre>
 <pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
 ## Levels: A B C D E</code></pre>
+</div>
+<div id="principal-conclusions" class="section level2">
+<h2>PRINCIPAL CONCLUSIONS</h2>
+<ol style="list-style-type: decimal">
+<li>It was submitted a GitHub Repository with both files: RMD and compiled HTML</li>
+<li>It was builded Two Machine Learning models in order to obtain a best accurray. Decition Tree Model (RPART) don’t shows good accuracy, but RF with 10-Folds-Cross-Validation Method obtained 99,18% of accuracy.</li>
+<li>The out of sample error its estimated in test dataset and its 0.18% and was obtained using crooss validation options included in RF Model described in point (2)</li>
+</ol>
+<p>Thanks!.</p>
 </div>
 </div>
 
